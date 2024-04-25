@@ -2,9 +2,9 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-class SimpleEEGNet(nn.Module):
+class SimpleEEG(nn.Module):
     def __init__(self, input_shape, num_classes=4):
-        super(SimpleEEGNet, self).__init__()
+        super(SimpleEEG, self).__init__()
         if input_shape is None:
             raise ValueError("Must specify input_shape")
         T, C = input_shape[1], input_shape[2]  # Time points and channels

@@ -111,5 +111,5 @@ normalize: !name:speechbrain.processing.signal_processing.mean_std_norm
     dims: !ref <dims_to_normalize>
 input_shape: [null, !ref <T>, !ref <C>, null]
 # MODEL
-model: !new:models.SimpleEEGNet.SimpleEEGNet
+model: !new:models.SimpleEEG.SimpleEEG
     input_shape: !ref <input_shape>
