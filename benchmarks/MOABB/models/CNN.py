@@ -2,10 +2,24 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+
 class CNN(nn.Module):
     """
-    A simplified version of EEGNet for EEG signal classification.
-    Adjusted for robust handling of kernel sizes and padding.
+    convolutional neural network for EEG signal classification,
+    with particular adjustments for robust handling of kernel sizes and padding to better suit EEG data.
+
+    Attributes:
+        features (torch.nn.Sequential): A sequence of convolutional, batch normalization, activation,
+                                        dropout, and pooling layers that process the input data.
+        classifier (torch.nn.Sequential): A fully connected layer that outputs the class probabilities.
+
+    Args:
+        input_shape (tuple of int): The shape of the input data, specified as (batch_size, 1, channels, time_points).
+                                    It must be provided to set up the layers correctly.
+        num_classes (int): The number of classes for the output layer.
+
+    Raises:
+        ValueError: If `input_shape` is None, which is essential for setting up the layers.
     """
 
     def __init__(self, input_shape, num_classes=4):

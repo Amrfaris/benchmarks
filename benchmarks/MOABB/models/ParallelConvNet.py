@@ -3,10 +3,24 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 class ParallelConvNet(nn.Module):
-    """
-    A parallel convolutional network designed for EEG signal classification,
-    inspired by the EEGNet architecture, ensuring compatibility with the same
-    input and output dimensions, and integrating diverse convolutional strategies.
+   """
+    A parallel convolutional neural network designed for EEG signal classification,
+    utilizing separate pathways to process temporal and spatial features simultaneously,
+    inspired by the EEGNet architecture. This design aims to maximize feature extraction
+    efficiency and improve classification accuracy by combining different aspects of EEG signals.
+
+    Attributes:
+        temporal_branch (torch.nn.Sequential): A sequential model processing temporal features.
+        spatial_branch (torch.nn.Sequential): A sequential model processing spatial features.
+        classifier (torch.nn.Sequential): A fully connected layer that outputs class probabilities.
+
+    Args:
+        input_shape (tuple of int): The shape of the input data (batch_size, 1, channels, time_points).
+                                    It must be provided to setup the layers appropriately.
+        num_classes (int): The number of target classes for classification.
+
+    Raises:
+        ValueError: If `input_shape` is not provided, which is crucial for configuring the layers.
     """
 
     def __init__(self, input_shape, num_classes=4):
@@ -50,13 +64,13 @@ class ParallelConvNet(nn.Module):
 
     def forward(self, x):
         if x.shape[1] != 1:
-            x = x.permute(0, 3, 2, 1)  # Ensure the input is (batch, channel, height, width)
+            x = x.permute(0, 3, 2, 1) 
         
-        # Process through both branches
+        
         temporal_features = self.temporal_branch(x)
         spatial_features = self.spatial_branch(x)
         
-        # Concatenate features along the feature dimension
+        
         combined_features = torch.cat((temporal_features.flatten(1), spatial_features.flatten(1)), dim=1)
         
         # Classifier

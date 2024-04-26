@@ -2,6 +2,27 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+"""
+
+    This model applies sequential convolutional operations targeting temporal and spatial
+    features in EEG data, followed by a dropout for regularization and a fully connected layer
+    for class prediction.
+
+    Attributes:
+        temporal_conv (torch.nn.Conv2d): Applies temporal convolution to input EEG data.
+        spatial_conv (torch.nn.Conv2d): Applies spatial convolution post temporal processing.
+        pooling (torch.nn.AvgPool2d): Applies average pooling.
+        dropout (torch.nn.Dropout): Applies dropout to prevent overfitting.
+        fc1 (torch.nn.Linear): Fully connected layer for final classification.
+
+    Args:
+        input_shape (tuple of int): The shape of the input data (batch_size, 1, channels, time_points).
+        num_classes (int): The number of classes for output prediction.
+
+    Raises:
+        ValueError: If `input_shape` is not specified.
+    """
+
 class SimpleEEG(nn.Module):
     def __init__(self, input_shape, num_classes=4):
         super(SimpleEEG, self).__init__()
@@ -14,11 +35,9 @@ class SimpleEEG(nn.Module):
         self.temporal_conv = nn.Conv2d(1, 16, (1, T // 4), padding=(0, T // 8))
         self.spatial_conv = nn.Conv2d(16, 32, (C, 1), groups=16, padding=(C // 2, 0))
         
-        # Pooling and dropout for regularization
         self.pooling = nn.AvgPool2d((1, 4))
         self.dropout = nn.Dropout(0.5)
         
-        # Calculate the number of flattened features after convolutions and pooling
         self._to_linear = None
         self._dummy_input = torch.zeros(1, 1, C, T)  # Dummy input to calculate flat features
         self.convs = nn.Sequential(self.temporal_conv, self.spatial_conv, self.pooling, self.dropout)
@@ -37,9 +56,8 @@ class SimpleEEG(nn.Module):
     # Ensuring input is in the format (batch_size, 1, channels, time_points)
       if x.shape[1] != 1:
           x = x.permute(0, 3, 2, 1)  # Correcting the shape if not matched
-      #print(f"Corrected input shape before convolutions: {x.shape}")
       x = self._forward_convs(x)
-      x = x.view(-1, self._to_linear)  # Flatten the features
+      x = x.view(-1, self._to_linear)  
       x = self.fc1(x)
       return F.log_softmax(x, dim=1)
 
